@@ -13,9 +13,10 @@ const POPULAR_CATEGORIES = [
 
 interface HomeViewProps {
   onNavigate: (view: View) => void;
+  setSelectedRestaurant: (restaurant: any) => void;
 }
 
-export default function HomeView({ onNavigate }: HomeViewProps) {
+export default function HomeView({ onNavigate, setSelectedRestaurant }: HomeViewProps) {
 
   const [restaurants, setRestaurants] = useState<any[]>([]);
 
@@ -86,7 +87,10 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                   Pesan menu favoritmu dari restoran pilihan dan nikmati gratis ongkir hari ini.
                 </p>
                 <button
-                  onClick={() => onNavigate('restaurant')}
+                  onClick={() => {
+                    setSelectedRestaurant(resto);
+                    onNavigate('restaurant');
+                  }}            
                   className="bg-white text-primary px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition-transform cursor-pointer">
                   Pesan Sekarang
                 </button>

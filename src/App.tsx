@@ -34,20 +34,53 @@ import AuthView from './views/Auth';
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('home');
   const [cartCount, setCartCount] = useState(2);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
 
-  const renderView = () => {
-    switch (currentView) {
-      case 'home': return <HomeView onNavigate={setCurrentView} />;
-      case 'restaurant': return <RestaurantDetailView onNavigate={setCurrentView} />;
-      case 'cart': return <CartView onNavigate={setCurrentView} />;
-      case 'checkout': return <CheckoutView onNavigate={setCurrentView} />;
-      case 'tracking': return <TrackingView onNavigate={setCurrentView} />;
-      case 'history': return <HistoryView onNavigate={setCurrentView} />;
-      case 'review': return <ReviewView onNavigate={setCurrentView} />;
-      case 'auth': return <AuthView onNavigate={setCurrentView} />;
-      default: return <HomeView onNavigate={setCurrentView} />;
-    }
-  };
+const renderView = () => {
+  switch (currentView) {
+    case 'home':
+      return (
+        <HomeView
+          onNavigate={setCurrentView}
+          setSelectedRestaurant={setSelectedRestaurant}
+        />
+      );
+
+    case 'restaurant':
+      return (
+        <RestaurantDetailView
+          onNavigate={setCurrentView}
+          restaurant={selectedRestaurant}
+        />
+      );
+
+    case 'cart':
+      return <CartView onNavigate={setCurrentView} />;
+
+    case 'checkout':
+      return <CheckoutView onNavigate={setCurrentView} />;
+
+    case 'tracking':
+      return <TrackingView onNavigate={setCurrentView} />;
+
+    case 'history':
+      return <HistoryView onNavigate={setCurrentView} />;
+
+    case 'review':
+      return <ReviewView onNavigate={setCurrentView} />;
+
+    case 'auth':
+      return <AuthView onNavigate={setCurrentView} />;
+
+    default:
+      return (
+        <HomeView
+          onNavigate={setCurrentView}
+          setSelectedRestaurant={setSelectedRestaurant}
+        />
+      );
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col bg-surface overflow-x-hidden">
