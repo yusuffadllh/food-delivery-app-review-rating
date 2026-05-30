@@ -35,14 +35,16 @@ export default function RestaurantDetailView({ onNavigate, restaurant, cartItems
   };
 
   useEffect(() => {
-    if (!restaurant) return;
-    fetch(`http://localhost:5000/api/menu/${restaurant.id_restoran}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setMenuItems(data);
-      })
-      .catch((err) => console.log(err));
-  }, [restaurant]);
+  if (!restaurant) return;
+
+  fetch(`http://localhost:5000/api/menu/${restaurant.id_restoran}`)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("MENU RESPONSE:", data);
+      setMenuItems(data);
+    })
+    .catch((err) => console.log(err));
+}, [restaurant]);
 
   if (!restaurant) {
     return (

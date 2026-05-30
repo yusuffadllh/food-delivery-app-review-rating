@@ -20,14 +20,15 @@ export default function HomeView({ onNavigate, setSelectedRestaurant }: HomeView
 
   const [restaurants, setRestaurants] = useState<any[]>([]);
 
-  useEffect(() => {
-    fetch('http://localhost:5000/api/restaurants')
-      .then((res) => res.json())
-      .then((data) => {
-        setRestaurants(data);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+useEffect(() => {
+  fetch("http://localhost:5000/api/restaurants")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Restaurants:", data);
+      setRestaurants(data);
+    })
+    .catch((err) => console.error(err));
+}, []);
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-8">
@@ -88,9 +89,11 @@ export default function HomeView({ onNavigate, setSelectedRestaurant }: HomeView
                 </p>
                 <button
                   onClick={() => {
-                    setSelectedRestaurant(resto);
-                    onNavigate('restaurant');
-                  }}            
+                      if (restaurants.length > 0) {
+                        setSelectedRestaurant(restaurants[0]);
+                        onNavigate('restaurant');
+                      }
+                    }}          
                   className="bg-white text-primary px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition-transform cursor-pointer">
                   Pesan Sekarang
                 </button>
@@ -135,7 +138,10 @@ export default function HomeView({ onNavigate, setSelectedRestaurant }: HomeView
               {restaurants.map((resto) => (
                 <article
                   key={resto.id_restoran}
-                  onClick={() => onNavigate('restaurant')}
+                    onClick={() => {
+                        setSelectedRestaurant(resto);
+                        onNavigate('restaurant');
+                      }}
                   className="bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-xl transition-all cursor-pointer group border border-slate-50"
                 >
                   <div className="relative aspect-[16/9] overflow-hidden">
