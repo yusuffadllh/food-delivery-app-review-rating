@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { useState } from 'react';
 import { 
   ShoppingBag, 
@@ -33,7 +28,7 @@ import AuthView from './views/Auth';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('home');
-  const [cartCount, setCartCount] = useState(2);
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity,0);
   const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
   const [cartItems, setCartItems] = useState<any[]>([]);
 
@@ -49,9 +44,9 @@ const renderView = () => {
 
     case 'restaurant': return <RestaurantDetailView onNavigate={setCurrentView} restaurant={selectedRestaurant} cartItems={cartItems} setCartItems={setCartItems} />
 
-    case 'cart': return <CartView onNavigate={setCurrentView} cartItems={cartItems} />;
+    case 'cart': return (<CartView onNavigate={setCurrentView}cartItems={cartItems}setCartItems={setCartItems}/>);
 
-    case 'checkout': return <CheckoutView onNavigate={setCurrentView} />;
+    case 'checkout': return (<CheckoutView onNavigate={setCurrentView}cartItems={cartItems}/>);
 
     case 'tracking': return <TrackingView onNavigate={setCurrentView} />;
 

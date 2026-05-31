@@ -3,9 +3,11 @@ import { View } from '../types';
 
 interface CartViewProps {
   onNavigate: (view: View) => void;
+  cartItems: any[];
+  setCartItems: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-export default function CartView({ onNavigate }: CartViewProps) {
+export default function CartView({ onNavigate, cartItems, setCartItems }: CartViewProps) {
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-12">
       <div className="flex flex-col lg:flex-row gap-12">

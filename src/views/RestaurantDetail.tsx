@@ -181,9 +181,12 @@ export default function RestaurantDetailView({ onNavigate, restaurant, cartItems
                       <div className="flex-1">
                         <h4 className="text-sm font-bold">{item.nama_menu}</h4>
                         <div className="flex items-center gap-4 mt-3">
-                          <button className="w-7 h-7 border border-outline-variant rounded-lg flex items-center justify-center text-primary hover:bg-primary/5 transition-colors">
-                            <Minus className="w-3 h-3" />
-                          </button>
+                          <button
+                              onClick={() => removeFromCart(item.id_menu)}
+                              className="w-7 h-7 border ..."
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
                           <span className="text-sm font-bold">{item.quantity}</span>
                           <button onClick={() => addToCart(item)} className="w-7 h-7 border border-outline-variant rounded-lg flex items-center justify-center text-primary hover:bg-primary/5 transition-colors">
                             <Plus className="w-3 h-3" />

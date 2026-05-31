@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { MapPin, Wallet, CreditCard, Banknote, ShieldCheck, ChevronRight } from 'lucide-react';
 import { View } from '../types';
 
@@ -8,6 +9,21 @@ interface CheckoutViewProps {
 }
 
 export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProps) {
+  const [paymentMethod, setPaymentMethod] =
+  useState('ewallet');
+  const subtotal = cartItems.reduce(
+    (sum, item) =>
+      sum + Number(item.harga) * item.quantity,
+    0
+  );
+
+  const ongkir = 15000;
+  const layanan = 3000;
+  const promo = 15000;
+
+  const total =
+    subtotal + ongkir + layanan - promo;
+
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-12">
       <h1 className="text-4xl font-black mb-12">Checkout</h1>
@@ -47,7 +63,8 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button className="relative border-2 border-primary bg-primary/5 p-6 rounded-2xl flex items-center gap-4 text-left transition-all">
+              <button
+                onClick={() => setPaymentMethod('ewallet')}className={`relative p-6 rounded-2xl flex items-center gap-4 text-left transition-all${paymentMethod === 'ewallet'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
                 <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shrink-0">
                   <Wallet className="w-6 h-6" />
                 </div>
@@ -62,7 +79,8 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
                 </div>
               </button>
 
-              <button className="border border-outline-variant hover:border-primary p-6 rounded-2xl flex items-center gap-4 text-left transition-all group">
+              <button
+                onClick={() => setPaymentMethod('bank')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all${paymentMethod === 'bank'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
                 <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 group-hover:bg-primary/10 group-hover:text-primary">
                   <Banknote className="w-6 h-6" />
                 </div>
@@ -72,7 +90,8 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
                 </div>
               </button>
 
-              <button className="border border-outline-variant hover:border-primary p-6 rounded-2xl flex items-center gap-4 text-left transition-all group">
+              <button
+                onClick={() => setPaymentMethod('credit')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all${paymentMethod === 'credit'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
                 <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 group-hover:bg-primary/10 group-hover:text-primary">
                   <CreditCard className="w-6 h-6" />
                 </div>
@@ -82,7 +101,8 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
                 </div>
               </button>
 
-              <button className="border border-outline-variant hover:border-primary p-6 rounded-2xl flex items-center gap-4 text-left transition-all group">
+              <button
+                  onClick={() => setPaymentMethod('cod')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all${paymentMethod === 'cod'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
                 <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 group-hover:bg-primary/10 group-hover:text-primary">
                   <Banknote className="w-6 h-6" />
                 </div>
