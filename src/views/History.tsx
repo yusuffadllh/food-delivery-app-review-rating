@@ -1,36 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, ShoppingBag, User, ChevronRight, Star, Wallet, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { View, Order } from '../types';
-
-const ORDERS: Order[] = [
-  {
-    id: '1',
-    restaurantName: 'Salad Hub - Sudirman',
-    date: '24 Okt 2023, 12:45',
-    status: 'Selesai',
-    items: 'Grilled Chicken Caesar, Lemon Tea',
-    price: 84500,
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=300'
-  },
-  {
-    id: '2',
-    restaurantName: 'Pizzeria Italia',
-    date: '20 Okt 2023, 19:20',
-    status: 'Dibatalkan',
-    items: 'Large Pepperoni Feast',
-    price: 125000,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=300'
-  },
-  {
-    id: '3',
-    restaurantName: 'The Burger Joint',
-    date: '15 Okt 2023, 18:00',
-    status: 'Selesai',
-    items: 'Classic Beef Combo, Fries, Soda',
-    price: 62000,
-    image: 'https://images.unsplash.com/photo-1571091718767-18b5c1457add?auto=format&fit=crop&q=80&w=300'
-  }
-];
 
 interface HistoryViewProps {
   onNavigate: (view: View) => void;
@@ -38,6 +8,27 @@ interface HistoryViewProps {
 
 export default function HistoryView({ onNavigate }: HistoryViewProps) {
   const [activeFilter, setActiveFilter] = useState('Semua');
+  const [orders, setOrders] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      try {
+        const userId = 3;
+
+        const res = await fetch(
+          `http://localhost:5000/api/orders/history/${userId}`
+        );
+
+        const data = await res.json();
+
+        setOrders(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    loadOrders();
+  }, []);
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12">
@@ -60,39 +51,39 @@ export default function HistoryView({ onNavigate }: HistoryViewProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Order List */}
         <div className="lg:col-span-8 space-y-6">
-          {ORDERS.map((order) => (
+          {orders.map((order) => (
             <div 
-              key={order.id}
+              key={order.id_pesanan}
               className="bg-white rounded-3xl p-6 shadow-soft border border-transparent hover:border-slate-100 transition-all group"
             >
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="w-full md:w-32 h-32 rounded-2xl overflow-hidden shrink-0">
-                  <img src={order.image} alt={order.restaurantName} className={`w-full h-full object-cover ${order.status === 'Dibatalkan' ? 'grayscale opacity-60' : ''}`} />
+                  <img src={order.gambar_restoran} alt={order.gambar_restoran} className={`w-full h-full object-cover ${order.status_pesanan === 'Dibatalkan' ? 'grayscale opacity-60' : ''}`} />
                 </div>
                 
                 <div className="flex-grow flex flex-col">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h3 className="text-xl font-bold group-hover:text-primary transition-colors">{order.restaurantName}</h3>
-                      <p className="text-slate-400 text-xs mt-1">{order.date}</p>
+                      <h3 className="text-xl font-bold group-hover:text-primary transition-colors">{order.nama_restoran}</h3>
+                      <p className="text-slate-400 text-xs mt-1">{new Date(order.waktu_pesan).toLocaleString("id-ID")}</p>
                     </div>
                     <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                      order.status === 'Selesai' ? 'bg-primary-container text-on-primary-container' : 
-                      order.status === 'Dibatalkan' ? 'bg-red-100 text-red-600' : 
+                      order.status_pesanan === 'Selesai' ? 'bg-primary-container text-on-primary-container' : 
+                      order.status_pesanan === 'Dibatalkan' ? 'bg-red-100 text-red-600' : 
                       'bg-amber-100 text-amber-600'
                     }`}>
-                      {order.status}
+                      {order.status_pesanan}
                     </span>
                   </div>
 
                   <div className="mt-auto pt-6 border-t border-slate-50 flex flex-wrap justify-between items-end gap-6">
                     <div>
-                      <p className="text-slate-600 text-sm">{order.items}</p>
-                      <p className="text-xl font-black mt-1">Rp {order.price.toLocaleString('id-ID')}</p>
+                      <p className="text-slate-600 text-sm">{order.items ?.map((item:any) => `${item.jumlah}x ${item.nama_menu}`).join(", ")}</p>
+                      <p className="text-xl font-black mt-1">Rp {Number(order.total_harga).toLocaleString("id-ID")}</p>
                     </div>
                     <div className="flex gap-3">
                       <button 
-                        onClick={() => onNavigate('review')}
+                        onClick={() => {localStorage.setItem("reviewOrderId",order.id_pesanan); onNavigate('review')}}
                         className="px-6 py-2.5 rounded-xl text-primary font-bold text-sm border-2 border-primary hover:bg-primary/5 transition-all cursor-pointer"
                       >
                         Detail
@@ -117,7 +108,7 @@ export default function HistoryView({ onNavigate }: HistoryViewProps) {
           <div className="bg-primary-container rounded-3xl p-8 text-on-primary-container shadow-xl relative overflow-hidden group">
             <div className="relative z-10">
               <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-2">Total Pesanan Bulan Ini</p>
-              <h2 className="text-4xl font-black">12 Pesanan</h2>
+              <h2 className="text-4xl font-black">{orders.length} Pesanan</h2>
               <div className="mt-8 flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/10">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-on-primary-container">
                   <Wallet className="w-5 h-5" />

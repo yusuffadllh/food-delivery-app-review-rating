@@ -28,11 +28,29 @@ export default function RestaurantDetailView({ onNavigate, restaurant, cartItems
         ...cartItems,
         {
           ...item,
-          quantity: 1
+          quantity: 1,
+          id_restoran: restaurant.id_restoran,
+          nama_restoran: restaurant.nama_restoran,
+          foto_restoran: restaurant.foto_restoran
         }
       ]);
     }
   };
+
+  const removeFromCart = (id: number) => {
+  const updatedCart = cartItems
+    .map(item =>
+      item.id_menu === id
+        ? {
+            ...item,
+            quantity: item.quantity - 1
+          }
+        : item
+    )
+    .filter(item => item.quantity > 0);
+
+  setCartItems(updatedCart);
+};
 
   useEffect(() => {
   if (!restaurant) return;
@@ -74,7 +92,7 @@ export default function RestaurantDetailView({ onNavigate, restaurant, cartItems
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[300px] md:h-[400px] w-full overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200" alt="Restaurant Hero" className="w-full h-full object-cover" />
+        <img src={restaurant.foto_restoran} alt="Restaurant Hero" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6 md:px-24 pb-12">
           <div className="max-w-[1440px] mx-auto w-full">
             <button onClick={() => onNavigate('home')} className="flex items-center gap-2 text-white/80 text-xs font-semibold mb-6 hover:text-white transition-colors cursor-pointer">
@@ -88,7 +106,7 @@ export default function RestaurantDetailView({ onNavigate, restaurant, cartItems
               <div className="flex items-center bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">
                 <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-2" />
                 <span>{restaurant.rating_avg}</span>
-                <span className="text-white/70 ml-2 font-normal">(500+ Rating)</span>
+                <span className="text-white/70 ml-2 font-normal">({restaurant.jumlah_ulasan || 0} Ulasan)</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary-container" />
@@ -135,13 +153,14 @@ export default function RestaurantDetailView({ onNavigate, restaurant, cartItems
                         <span className="text-lg font-black">
                           {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.harga)}
                         </span>
-                        <button onClick={() => addToCart(item)} className="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer">
-                          <Plus className="w-5 h-5" />
+                        <button onClick={() => addToCart(item)} className="bg-primary text-white w-11 h-11 rounded-full flex items-center justify-center shadow-xl hover:brightness-110 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                        >
+                          <Plus className="w-6 h-6 stroke-[3]" />
                         </button>
                       </div>
                     </div>
                     <div className="w-28 h-28 md:w-32 md:h-32 rounded-xl overflow-hidden shrink-0">
-                      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=400" alt={item.nama_menu} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      <img src={item.foto_menu} alt={item.nama_menu} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     </div>
                   </div>
                 ))}
@@ -154,12 +173,12 @@ export default function RestaurantDetailView({ onNavigate, restaurant, cartItems
         <aside className="w-full lg:w-[400px]">
           <div className="sticky top-24 space-y-6">
             <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-              <div className="bg-primary-container p-6">
-                <div className="flex items-center justify-between text-on-primary-container">
+              <div className="bg-primary p-6">
+                <div className="flex items-center justify-between text-white">
                   <h3 className="text-xl font-bold">
                     Keranjang Belanja
                   </h3>
-                  <div className="bg-on-primary-container text-primary-container px-3 py-1 rounded-lg font-black text-xs">
+                  <div className="bg-white text-primary px-3 py-1 rounded-lg font-black text-xs">
                     {cartItems.length} Item
                   </div>
                 </div>
@@ -180,18 +199,18 @@ export default function RestaurantDetailView({ onNavigate, restaurant, cartItems
                     <div key={item.id_menu} className="flex justify-between items-start gap-4 pb-6 border-b border-slate-50">
                       <div className="flex-1">
                         <h4 className="text-sm font-bold">{item.nama_menu}</h4>
-                        <div className="flex items-center gap-4 mt-3">
-                          <button
-                              onClick={() => removeFromCart(item.id_menu)}
-                              className="w-7 h-7 border ..."
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                          <span className="text-sm font-bold">{item.quantity}</span>
-                          <button onClick={() => addToCart(item)} className="w-7 h-7 border border-outline-variant rounded-lg flex items-center justify-center text-primary hover:bg-primary/5 transition-colors">
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
+                        <div className="flex items-center gap-3 mt-3">
+                        <button onClick={() => removeFromCart(item.id_menu)} className="w-8 h-8 rounded-lg border border-primary/30 bg-primary/5 flex items-center justify-center text-primary hover:bg-primary/10">
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="min-w-[20px] text-center text-sm font-bold">
+                          {item.quantity}
+                        </span>
+
+                        <button onClick={() => addToCart(item)} className="w-8 h-8 rounded-lg border border-primary/30 bg-primary/5 flex items-center justify-center text-primary hover:bg-primary/10">
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
                       </div>
                       <span className="text-sm font-bold">
                         {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.harga * item.quantity)}

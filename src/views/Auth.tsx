@@ -10,6 +10,8 @@ export default function AuthView({ onNavigate }: AuthViewProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
   const [nama, setNama] = useState('');
+  const [noHp, setNoHp] = useState('');
+  const [alamat, setAlamat] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -31,7 +33,9 @@ export default function AuthView({ onNavigate }: AuthViewProps) {
       body: JSON.stringify({
         nama,
         email,
-        password
+        password,
+        no_hp: noHp,
+        alamat
       })
     });
     const data = await response.json();
@@ -105,20 +109,43 @@ export default function AuthView({ onNavigate }: AuthViewProps) {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {mode === 'register' && (
-              <div className="group">
-                <label className="block text-sm font-black text-slate-800 mb-2 transition-colors group-focus-within:text-primary">Nama Lengkap</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 transition-colors group-focus-within:text-primary" />
+              <>
+                <div className="group">
+                  <label className="block text-sm font-black text-slate-800 mb-2 transition-colors group-focus-within:text-primary">Nama Lengkap</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 transition-colors group-focus-within:text-primary" />
+                    <input
+                      type="text"
+                      required
+                      value={nama}
+                      onChange={(e) => setNama(e.target.value)}
+                      placeholder="Masukkan nama Anda"
+                      className="w-full bg-surface-container-low border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl py-4 pl-12 pr-6 text-sm font-medium transition-all focus:ring-0"
+                    />
+                  </div>
+                </div>
+
+                <div className="group">
                   <input
                     type="text"
                     required
-                    value={nama}
-                    onChange={(e) => setNama(e.target.value)}
-                    placeholder="Masukkan nama Anda"
-                    className="w-full bg-surface-container-low border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl py-4 pl-12 pr-6 text-sm font-medium transition-all focus:ring-0"
+                    value={noHp}
+                    onChange={(e) => setNoHp(e.target.value)}
+                    placeholder="08123456789"
+                    className="w-full bg-surface-container-low border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl py-4 px-4 text-sm"
                   />
                 </div>
-              </div>
+
+                <div className="group">
+                  <textarea
+                    required
+                    value={alamat}
+                    onChange={(e) => setAlamat(e.target.value)}
+                    placeholder="Jl. Keputih No.123, Jakarta"
+                    className="w-full bg-surface-container-low border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl p-4 text-sm"
+                  />
+                </div>
+              </>
             )}
 
             <div className="group">

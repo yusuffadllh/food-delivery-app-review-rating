@@ -31,4 +31,19 @@ export interface Order {
   items: string;
   price: number;
   image: string;
+  driverName?: string;
+  estimatedTime?: string;
+}
+
+export interface CartItem {
+  id_menu: number;
+  nama_menu: string;
+  harga: number;
+  quantity: number;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
 }

@@ -13,6 +13,7 @@ exports.createPayment = (req, res) => {
   const sql = `
     INSERT INTO pembayaran
     (
+    
       id_pesanan,
       id_metode,
       jumlah_bayar,

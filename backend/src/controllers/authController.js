@@ -42,9 +42,29 @@ exports.register = async (req, res) => {
           return res.status(500).json(err);
         }
 
-        res.status(201).json({
-          message: 'Register success'
-        });
+        const token = jwt.sign(
+        {
+          id: result.insertId,
+          email,
+          role: 'user'
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '1d'
+        }
+      );
+
+      res.status(201).json({
+        message: 'Register success',
+        token,
+        user: {
+          id: result.insertId,
+          nama,
+          email,
+          no_hp,
+          alamat,
+          role: 'user'
+        }});
       }
     );
   });
@@ -98,6 +118,8 @@ exports.login = (req, res) => {
         id: user.id_pelanggan,
         nama: user.nama,
         email: user.email,
+        no_hp: user.no_hp,
+        alamat: user.alamat,
         role: user.role
       }
     });

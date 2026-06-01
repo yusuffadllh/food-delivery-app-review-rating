@@ -8,9 +8,17 @@ interface CheckoutViewProps {
 
 }
 
-export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProps) {
-  const [paymentMethod, setPaymentMethod] =
-  useState('ewallet');
+export default function CheckoutView({onNavigate,cartItems}: CheckoutViewProps) {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) {
+    return (
+      <div className="p-10 text-center">
+        Silakan login terlebih dahulu
+      </div>
+      );
+    }
+  const restaurantName = cartItems[0]?.nama_restoran || "Restoran";
+  const [paymentMethod, setPaymentMethod] =useState('ewallet');
   const subtotal = cartItems.reduce(
     (sum, item) =>
       sum + Number(item.harga) * item.quantity,
@@ -21,8 +29,43 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
   const layanan = 3000;
   const promo = 15000;
 
-  const total =
-    subtotal + ongkir + layanan - promo;
+  const total =subtotal + ongkir + layanan - promo;
+
+  const handleCheckout = async () => {
+  try {
+    if (cartItems.length === 0) {
+        alert("Keranjang kosong");
+        return;
+      }
+    const response = await fetch(
+      "http://localhost:5000/api/orders",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id_pelanggan: user.id,
+          id_restoran: cartItems[0].id_restoran,
+          biaya_kirim: ongkir,
+          catatan: "",
+          alamat: user.alamat,
+          items: cartItems.map(item => ({
+            menu_id: item.id_menu,
+            quantity: item.quantity
+          }))
+        })
+      }
+    );
+
+    const data = await response.json();
+    localStorage.setItem("currentOrderId",data.order_id);
+    console.log("Response:", data);
+    onNavigate("tracking");
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-12">
@@ -46,8 +89,8 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
                 <span className="font-bold text-sm">Rumah</span>
                 <span className="bg-primary-container text-on-primary-container text-[10px] px-2 py-0.5 rounded-md font-black uppercase tracking-wider">Utama</span>
               </div>
-              <p className="text-lg font-bold mb-1">Park Jinyoung (+62 812-3456-7890)</p>
-              <p className="text-sm text-slate-500 leading-relaxed">Jl. Jenderal Sudirman No. 123, SCBD, Kebayoran Baru, Jakarta Selatan, 12190</p>
+              <p className="text-lg font-bold mb-1">{user.nama} ({user.no_hp})</p>
+              <p className="text-sm text-slate-500 leading-relaxed">{user.alamat}</p>
               <div className="mt-4 flex items-center gap-2 text-primary font-bold text-xs bg-primary/5 w-fit px-3 py-1.5 rounded-full">
                 <ShieldCheck className="w-4 h-4 fill-primary text-white" />
                 <span>Pin lokasi sudah sesuai</span>
@@ -64,7 +107,7 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
-                onClick={() => setPaymentMethod('ewallet')}className={`relative p-6 rounded-2xl flex items-center gap-4 text-left transition-all${paymentMethod === 'ewallet'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
+                onClick={() => setPaymentMethod('ewallet')}className={`relative p-6 rounded-2xl flex items-center gap-4 text-left transition-all ${paymentMethod === 'ewallet'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
                 <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shrink-0">
                   <Wallet className="w-6 h-6" />
                 </div>
@@ -80,7 +123,7 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
               </button>
 
               <button
-                onClick={() => setPaymentMethod('bank')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all${paymentMethod === 'bank'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
+                onClick={() => setPaymentMethod('bank')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all ${paymentMethod === 'bank'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
                 <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 group-hover:bg-primary/10 group-hover:text-primary">
                   <Banknote className="w-6 h-6" />
                 </div>
@@ -91,7 +134,7 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
               </button>
 
               <button
-                onClick={() => setPaymentMethod('credit')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all${paymentMethod === 'credit'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
+                onClick={() => setPaymentMethod('credit')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all ${paymentMethod === 'credit'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
                 <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 group-hover:bg-primary/10 group-hover:text-primary">
                   <CreditCard className="w-6 h-6" />
                 </div>
@@ -102,7 +145,7 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
               </button>
 
               <button
-                  onClick={() => setPaymentMethod('cod')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all${paymentMethod === 'cod'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
+                  onClick={() => setPaymentMethod('cod')}className={`p-6 rounded-2xl flex items-center gap-4 text-left transition-all ${paymentMethod === 'cod'? 'border-2 border-primary bg-primary/5': 'border border-outline-variant'}`}>
                 <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 group-hover:bg-primary/10 group-hover:text-primary">
                   <Banknote className="w-6 h-6" />
                 </div>
@@ -128,7 +171,7 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
                 alt="Restaurant"
               />
               <div>
-                <p className="font-bold text-base">Pizza Hut - Sudirman</p>
+                <p className="font-bold text-base">{restaurantName}</p>
                 <div className="flex items-center gap-1 text-slate-400 text-xs mt-1">
                   <MapPin className="w-3 h-3" /> 1.2 km
                 </div>
@@ -137,38 +180,55 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
 
             {/* Item List */}
             <div className="space-y-6 mb-8">
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex gap-4">
-                  <span className="font-bold text-primary">1x</span>
-                  <div>
-                    <p className="text-sm font-bold">Meat Lovers Pizza (Large)</p>
-                    <p className="text-[10px] text-slate-400 mt-1">Pinggiran Stuffed Crust, Extra Cheese</p>
-                  </div>
-                </div>
-                <span className="text-sm font-bold whitespace-nowrap">Rp 145.000</span>
-              </div>
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex gap-4">
-                  <span className="font-bold text-primary">2x</span>
-                  <div>
-                    <p className="text-sm font-bold">Lemon Tea (Regular)</p>
-                  </div>
-                </div>
-                <span className="text-sm font-bold whitespace-nowrap">Rp 36.000</span>
-              </div>
-            </div>
+                {cartItems.map((item) => (
+                  <div
+                    key={item.id_menu}
+                    className="flex justify-between items-start gap-4"
+                  >
+                    <div className="flex gap-4">
+                      <span className="font-bold text-primary">
+                        {item.quantity}x
+                      </span>
 
-            <div className="border-t border-dashed border-outline-variant my-8"></div>
+                      <div>
+                        <p className="text-sm font-bold">
+                          {item.nama_menu}
+                        </p>
+                      </div>
+                    </div>
+
+                    <span className="text-sm font-bold whitespace-nowrap">
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0
+                      }).format(item.harga * item.quantity)}
+                    </span>
+                  </div>
+                ))}
+              </div>
 
             {/* Pricing */}
             <div className="space-y-4 mb-10">
               <div className="flex justify-between text-slate-500 text-sm">
                 <span>Subtotal</span>
-                <span>Rp 181.000</span>
+                <span>
+                  {new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    maximumFractionDigits: 0
+                  }).format(subtotal)}
+                </span>
               </div>
               <div className="flex justify-between text-slate-500 text-sm">
                 <span>Ongkos Kirim</span>
-                <span>Rp 12.000</span>
+                <span>
+                  {new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    maximumFractionDigits: 0
+                  }).format(ongkir)}
+                </span>
               </div>
               <div className="flex justify-between text-slate-500 text-sm">
                 <span>Biaya Layanan</span>
@@ -182,13 +242,13 @@ export default function CheckoutView({ onNavigate, cartItems }: CheckoutViewProp
               </div>
               <div className="flex justify-between font-black text-2xl pt-6 border-t border-slate-50">
                 <span>Total Bayar</span>
-                <span className="text-primary font-black">Rp 181.000</span>
+                <span className="text-primary font-black">{new Intl.NumberFormat('id-ID', {style: 'currency',currency: 'IDR',maximumFractionDigits: 0}).format(total)}</span>
               </div>
             </div>
 
             <button 
-              onClick={() => onNavigate('tracking')}
-              className="w-full bg-primary-container text-on-primary-container py-5 rounded-3xl font-black text-base shadow-xl hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+              onClick={handleCheckout}
+              className="w-full bg-primary text-white py-5 rounded-3xl font-black text-base shadow-xl hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               Buat Pesanan <ChevronRight className="w-5 h-5" />
             </button>

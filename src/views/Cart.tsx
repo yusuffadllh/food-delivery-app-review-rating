@@ -5,9 +5,56 @@ interface CartViewProps {
   onNavigate: (view: View) => void;
   cartItems: any[];
   setCartItems: React.Dispatch<React.SetStateAction<any[]>>;
+  selectedRestaurant: any;
 }
 
-export default function CartView({ onNavigate, cartItems, setCartItems }: CartViewProps) {
+export default function CartView({ onNavigate, cartItems, setCartItems, selectedRestaurant }: CartViewProps) 
+{
+  const increaseQty = (id: number) => {
+  setCartItems(prev =>
+    prev.map(item =>
+      item.id_menu === id
+        ? {
+            ...item,
+            quantity: item.quantity + 1
+          }
+        : item
+    )
+  );
+};
+
+    const decreaseQty = (id: number) => {
+      setCartItems(prev =>
+        prev
+          .map(item =>
+            item.id_menu === id
+              ? {
+                  ...item,
+                  quantity: item.quantity - 1
+                }
+              : item
+          )
+          .filter(item => item.quantity > 0)
+      );
+    };
+
+    const removeItem = (id: number) => {
+      setCartItems(prev =>
+        prev.filter(item => item.id_menu !== id)
+      );
+    };
+
+    const subtotal = cartItems.reduce(
+  (sum, item) =>
+    sum + Number(item.harga) * item.quantity,
+  0
+    );
+
+    const ongkir = 12000;
+    const layanan = 3000;
+
+    const total =
+      subtotal + ongkir + layanan;
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-12">
       <div className="flex flex-col lg:flex-row gap-12">
@@ -26,44 +73,52 @@ export default function CartView({ onNavigate, cartItems, setCartItems }: CartVi
           <div className="bg-white rounded-[40px] p-8 shadow-soft border border-slate-50 relative overflow-hidden">
             <div className="space-y-12">
               {/* Restaurant Header */}
-              <div className="flex items-center justify-between pb-8 border-b border-slate-50">
-                <div className="flex items-center gap-6">
-                  <img 
-                    src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=120" 
-                    alt="Resto" 
-                    className="w-20 h-20 rounded-3xl object-cover shadow-lg"
-                  />
-                  <div>
-                    <h2 className="text-2xl font-black">Pizza Hut - Sudirman</h2>
-                    <p className="text-slate-400 text-sm font-semibold">1.2 km dari lokasimu</p>
-                  </div>
+              <div className="flex items-center gap-6 pb-8 border-b border-slate-50">
+                <img
+                  src={selectedRestaurant?.foto_restoran}
+                  alt={selectedRestaurant?.nama_restoran}
+                  className="w-20 h-20 rounded-3xl object-cover shadow-lg"
+                />
+
+                <div className="flex-1">
+                  <h2 className="text-2xl font-black">
+                    {selectedRestaurant?.nama_restoran}
+                  </h2>
+
+                  <p className="text-slate-400 text-sm font-semibold">
+                    {selectedRestaurant?.alamat}
+                  </p>
                 </div>
-                <button className="text-primary font-black text-xs uppercase tracking-widest hover:underline">Tambah Item</button>
+
+                <button
+                  onClick={() => onNavigate('restaurant')}
+                  className="bg-primary text-white px-4 py-2 rounded-xl font-bold hover:opacity-90 transition"
+                >
+                  Tambah Item
+                </button>
               </div>
 
               {/* Items */}
               <div className="space-y-10">
-                {[1, 2].map((item) => (
-                  <div key={item} className="flex flex-col md:flex-row items-center gap-8 group">
+                {cartItems.map((item, index) => (
+                  <div key={index} className="flex flex-col md:flex-row items-center gap-8 group">
                     <img 
-                      src={item === 1 ? 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&q=80&w=200' : 'https://images.unsplash.com/photo-1512058560366-cd2429598632?auto=format&fit=crop&q=80&w=200'} 
+                      src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=400" 
                       alt="Item" 
                       className="w-32 h-32 rounded-3xl object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="flex-1 text-center md:text-left">
-                      <h3 className="text-xl font-bold mb-2">{item === 1 ? 'Meat Lovers Pizza' : 'Chicken Katsu Curry'}</h3>
+                      <h3 className="text-xl font-bold mb-2">{item.nama_menu} </h3>
                       <p className="text-slate-400 text-xs font-semibold leading-relaxed max-w-md">Ekstra Keju, Pinggiran Stuffed Crust, Ukuran Large.</p>
                       <div className="mt-6 flex items-center justify-center md:justify-start gap-4">
-                        <button className="w-10 h-10 rounded-xl border-2 border-slate-100 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-all active:scale-90"><Minus className="w-4 h-4" /></button>
-                        <span className="text-lg font-black w-8 text-center">1</span>
-                        <button className="w-10 h-10 rounded-xl border-2 border-slate-100 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-all active:scale-90"><Plus className="w-4 h-4" /></button>
+                        <button onClick={() => decreaseQty(item.id_menu)}className="w-10 h-10 rounded-xl border-2 border-slate-100 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-all active:scale-90"><Minus className="w-4 h-4" /></button>
+                        <span className="text-lg font-black w-8 text-center">{item.quantity}</span>
+                        <button onClick={() => increaseQty(item.id_menu)}className="w-10 h-10 rounded-xl border-2 border-slate-100 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-all active:scale-90"><Plus className="w-4 h-4" /></button>
                       </div>
                     </div>
                     <div className="flex flex-col items-center md:items-end gap-4">
-                      <span className="text-2xl font-black text-on-surface">Rp {item === 1 ? '145.000' : '68.000'}</span>
-                      <button className="p-3 text-slate-300 hover:text-red-500 transition-colors">
-                        <Trash2 className="w-6 h-6" />
-                      </button>
+                      <span className="text-2xl font-black text-on-surface">{new Intl.NumberFormat('id-ID', {style: 'currency',currency: 'IDR',maximumFractionDigits: 0}).format(item.harga * item.quantity)}</span>
+                      <button onClick={() => removeItem(item.id_menu)}className="p-3 text-slate-300 hover:text-red-500 transition-colors"><Trash2 className="w-6 h-6" /></button>
                     </div>
                   </div>
                 ))}
@@ -99,25 +154,52 @@ export default function CartView({ onNavigate, cartItems, setCartItems }: CartVi
                 <div className="space-y-6 pt-2">
                   <div className="flex justify-between items-center text-slate-500 font-semibold">
                     <span className="text-sm">Subtotal</span>
-                    <span className="text-base text-on-surface font-black">Rp 213.000</span>
+                    <span className="text-base text-on-surface font-black">
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0
+                      }).format(subtotal)}
+                    </span>
                   </div>
+
                   <div className="flex justify-between items-center text-slate-500 font-semibold">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">Ongkos Kirim</span>
-                      <span className="bg-primary-container/30 text-primary text-[8px] px-1.5 py-0.5 rounded font-black">DISKON</span>
-                    </div>
-                    <span className="text-base text-on-surface font-black">Rp 12.000</span>
+                    <span className="text-sm">Ongkos Kirim</span>
+                    <span className="text-base text-on-surface font-black">
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0
+                      }).format(ongkir)}
+                    </span>
                   </div>
+
                   <div className="flex justify-between items-center text-slate-400 font-semibold">
                     <span className="text-sm">Biaya Layanan</span>
-                    <span className="text-base font-black">Rp 3.000</span>
+                    <span className="text-base font-black">
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0
+                      }).format(layanan)}
+                    </span>
                   </div>
-                  
+
                   <div className="border-t border-dashed border-slate-100 my-8 pt-8 flex justify-between items-center">
                     <span className="text-lg font-black">Total Akhir</span>
+
                     <div className="text-right">
-                      <span className="text-3xl font-black text-primary block">Rp 228.000</span>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">PPN Termasuk</span>
+                      <span className="text-3xl font-black text-primary block">
+                        {new Intl.NumberFormat('id-ID', {
+                          style: 'currency',
+                          currency: 'IDR',
+                          maximumFractionDigits: 0
+                        }).format(total)}
+                      </span>
+
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                        PPN Termasuk
+                      </span>
                     </div>
                   </div>
                 </div>

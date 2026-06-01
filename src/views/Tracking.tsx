@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { MapPin, Clock, Phone, MessageCircle, ChevronRight, CheckCircle2, Navigation } from 'lucide-react';
 import { View } from '../types';
 
@@ -6,6 +7,36 @@ interface TrackingViewProps {
 }
 
 export default function TrackingView({ onNavigate }: TrackingViewProps) {
+  const [order, setOrder] = useState<any>(null);
+  useEffect(() => {
+  const orderId =
+    localStorage.getItem("currentOrderId");
+  if (!orderId) return;
+  const loadOrder = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/orders/${orderId}`
+      );
+      const data = await res.json();
+      setOrder(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  loadOrder();
+  const interval = setInterval(
+    loadOrder,
+    5000
+  );
+  return () => clearInterval(interval);
+  }, []);
+  if (!order) {
+  return (
+    <div className="p-10 text-center">
+      Loading...
+    </div>
+  );
+  }
   return (
     <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
@@ -59,7 +90,7 @@ export default function TrackingView({ onNavigate }: TrackingViewProps) {
 
           {/* Status Timeline */}
           <section className="bg-white rounded-[40px] p-10 shadow-soft">
-            <h2 className="text-2xl font-black mb-10">Status Pesanan #GM-99281039</h2>
+            <h2 className="text-2xl font-black mb-10">Status Pesanan #{order.id_pesanan}</h2>
             <div className="space-y-12 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-1 before:bg-slate-50">
               <div className="flex gap-8 relative items-start">
                 <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white ring-8 ring-primary/10 z-10 shrink-0">
@@ -110,12 +141,12 @@ export default function TrackingView({ onNavigate }: TrackingViewProps) {
                   </div>
                 </div>
               </div>
-              <h3 className="text-xl font-black">Randi Wijaya</h3>
-              <p className="text-slate-400 text-sm font-bold mt-1">GrabMakan Platinum Driver</p>
+              <h3 className="text-xl font-black">{order.driver?.nama_kurir}</h3>
+              <p className="text-slate-400 text-sm font-bold mt-1">{order.driver?.kendaraan}r</p>
               
               <div className="mt-8 flex gap-4 w-full">
                 <button className="flex-1 bg-primary text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer">
-                  <Phone className="w-5 h-5 fill-white" /> Hubungi
+                  <Phone className="w-5 h-5 fill-white" /> {order.driver?.no_hp}
                 </button>
                 <button className="flex-1 bg-surface-container-high text-on-surface py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer">
                   <MessageCircle className="w-5 h-5" /> Chat
@@ -128,25 +159,31 @@ export default function TrackingView({ onNavigate }: TrackingViewProps) {
           <section className="bg-white rounded-[40px] p-8 shadow-soft border border-slate-50">
             <h4 className="text-xl font-black mb-8">Detail Pesanan</h4>
             <div className="space-y-6">
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex gap-4">
-                  <span className="font-bold text-primary">1x</span>
-                  <div className="text-sm font-bold">Pizza Hut - Margherita</div>
+              {order.items?.map((item: any, index: number) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-start gap-4"
+                >
+                  <div className="flex gap-4">
+                    <span className="font-bold text-primary">
+                      {item.jumlah}x
+                    </span>
+
+                    <div className="text-sm font-bold">
+                      {item.nama_menu}
+                    </div>
+                  </div>
+
+                  <span className="text-sm font-bold">
+                    Rp {Number(item.subtotal).toLocaleString("id-ID")}
+                  </span>
                 </div>
-                <span className="text-sm font-bold">Rp 85k</span>
-              </div>
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex gap-4">
-                  <span className="font-bold text-primary">2x</span>
-                  <div className="text-sm font-bold">Lemon Tea</div>
-                </div>
-                <span className="text-sm font-bold">Rp 30k</span>
-              </div>
+              ))}
             </div>
             
             <div className="border-t border-slate-50 my-8 pt-8 flex justify-between items-center">
               <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest leading-none">Total Pembayaran</span>
-              <span className="text-2xl font-black text-primary">Rp 115.000</span>
+              <span className="text-2xl font-black text-primary">Rp {Number(order.total_harga).toLocaleString('id-ID')}</span>
             </div>
 
             <button 

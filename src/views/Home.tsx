@@ -146,7 +146,7 @@ useEffect(() => {
                 >
                   <div className="relative aspect-[16/9] overflow-hidden">
                     <img
-                      src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=800"
+                      src={resto.foto_restoran}
                       alt={resto.nama_restoran}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -167,8 +167,12 @@ useEffect(() => {
                       <h3 className="text-lg font-bold truncate group-hover:text-primary transition-colors">
                         {resto.nama_restoran}
                       </h3>
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-primary/10 text-primary">
-                        Buka
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${
+                          resto.status_buka
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                        > {resto.status_buka ? "Buka" : "Tutup"}
                       </span>
                     </div>
                     <p className="text-sm text-outline mb-4">

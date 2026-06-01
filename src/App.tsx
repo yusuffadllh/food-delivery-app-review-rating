@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  ShoppingBag, 
+  ShoppingBag,
   User, 
   History as HistoryIcon, 
   HelpCircle, 
@@ -13,7 +13,7 @@ import {
   Menu as MenuIcon,
   ArrowLeft
 } from 'lucide-react';
-import { View } from './types';
+import { View, CartItem, Order } from './types';
 import { motion, AnimatePresence } from 'motion/react';
 
 // Views
@@ -28,9 +28,11 @@ import AuthView from './views/Auth';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('home');
-  const cartCount = cartItems.reduce((total, item) => total + item.quantity,0);
   const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  //const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  //const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity,0);
 
 const renderView = () => {
   switch (currentView) {
@@ -44,7 +46,7 @@ const renderView = () => {
 
     case 'restaurant': return <RestaurantDetailView onNavigate={setCurrentView} restaurant={selectedRestaurant} cartItems={cartItems} setCartItems={setCartItems} />
 
-    case 'cart': return (<CartView onNavigate={setCurrentView}cartItems={cartItems}setCartItems={setCartItems}/>);
+    case 'cart': return (<CartView onNavigate={setCurrentView}cartItems={cartItems}setCartItems={setCartItems}selectedRestaurant={selectedRestaurant}/>);
 
     case 'checkout': return (<CheckoutView onNavigate={setCurrentView}cartItems={cartItems}/>);
 

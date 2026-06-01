@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Star, Camera, CheckCircle2, ChevronRight, MessageSquare } from 'lucide-react';
 import { View } from '../types';
 
