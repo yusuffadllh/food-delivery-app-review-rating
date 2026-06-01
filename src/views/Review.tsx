@@ -9,6 +9,40 @@ interface ReviewViewProps {
 export default function ReviewView({ onNavigate }: ReviewViewProps) {
   const [rating, setRating] = useState(4);
   const [submitted, setSubmitted] = useState(false);
+  const [order, setOrder] = useState<any>(null);
+  const [comment, setComment] = useState("");
+  const [deliveryRating, setDeliveryRating] = useState(5);
+
+  useEffect(() => {
+  const orderId =
+    localStorage.getItem("reviewOrderId");
+
+  if (!orderId) return;
+
+  const loadOrder = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/reviews/${orderId}`
+      );
+
+      const data = await res.json();
+
+      setOrder(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  loadOrder();
+  }, []);
+
+  if (!order) {
+    return (
+      <div className="p-10 text-center">
+        Loading...
+      </div>
+    );
+    }
 
   if (submitted) {
     return (
@@ -33,16 +67,16 @@ export default function ReviewView({ onNavigate }: ReviewViewProps) {
       {/* Header */}
       <div className="bg-white rounded-3xl p-8 shadow-soft mb-8 flex flex-col md:flex-row items-center gap-8">
         <img 
-          src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=200" 
-          alt="Restaurant" 
+          src={order[0]?.gambar_restoran}
+          alt={order[0]?.nama_restoran}
           className="w-24 h-24 rounded-2xl object-cover"
         />
         <div className="flex-1 text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 text-primary font-black text-[10px] uppercase tracking-wider mb-2">
             <CheckCircle2 className="w-4 h-4 fill-primary text-white" /> Pesanan Selesai
           </div>
-          <h1 className="text-2xl font-black mb-1">Sate Khas Senayan - Menteng</h1>
-          <p className="text-slate-400 text-sm italic">Order ID: #GM-99281039 • 24 Okt 2023, 19:45</p>
+          <h1 className="text-2xl font-black mb-1">{order[0]?.nama_restoran}</h1>
+          <p className="text-slate-400 text-sm italic">Order ID: #{order[0]?.id_pesanan}{" • "}{new Date(order[0]?.waktu_pesan).toLocaleString("id-ID")}</p>
         </div>
       </div>
 
@@ -52,13 +86,18 @@ export default function ReviewView({ onNavigate }: ReviewViewProps) {
           <h2 className="text-xl font-bold mb-6">Penilaian Restoran</h2>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div className="flex gap-3">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button 
-                  key={star} 
-                  onClick={() => setRating(star)}
-                  className="transition-transform active:scale-90 cursor-pointer"
+              {[1,2,3,4,5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => setDeliveryRating(star)}
                 >
-                  <Star className={`w-10 h-10 ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
+                  <Star
+                    className={`w-10 h-10 ${
+                      star <= deliveryRating
+                        ? 'text-yellow-400 fill-yellow-400'
+                        : 'text-slate-200'
+                    }`}
+                  />
                 </button>
               ))}
             </div>
@@ -96,25 +135,42 @@ export default function ReviewView({ onNavigate }: ReviewViewProps) {
         <section className="bg-white rounded-3xl p-8 shadow-soft">
           <h2 className="text-xl font-bold mb-8">Penilaian Menu</h2>
           <div className="space-y-8">
-            {[
-              { name: 'Sate Ayam Bumbu Kacang', price: 'Rp 45.000', image: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&q=80&w=100' },
-              { name: 'Sop Iga Sapi', price: 'Rp 68.000', image: 'https://images.unsplash.com/photo-1512058560366-cd2429598632?auto=format&fit=crop&q=80&w=100' }
-            ].map((item) => (
-              <div key={item.name} className="flex items-center justify-between gap-6 pb-6 border-b border-slate-50 last:border-0 last:pb-0">
-                <div className="flex items-center gap-6">
-                  <img src={item.image} alt={item.name} className="w-16 h-16 rounded-2xl object-cover" />
-                  <div>
-                    <h3 className="font-bold text-sm mb-1">{item.name}</h3>
-                    <p className="text-slate-400 text-xs font-semibold">{item.price}</p>
-                  </div>
-                </div>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} className={`w-5 h-5 ${star <= 4 ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
-                  ))}
-                </div>
+            {order.map((item:any,index:number) => (
+          <div
+            key={index}
+            className="flex items-center justify-between gap-6 pb-6 border-b border-slate-50 last:border-0 last:pb-0"
+          >
+            <div className="flex items-center gap-6">
+
+              <img
+                src="https://via.placeholder.com/80"
+                alt={item.nama_menu}
+                className="w-16 h-16 rounded-2xl object-cover"
+              />
+
+              <div>
+                <h3 className="font-bold text-sm mb-1">
+                  {item.nama_menu}
+                </h3>
+
+                <p className="text-slate-400 text-xs font-semibold">
+                  Rp {Number(item.subtotal).toLocaleString("id-ID")}
+                </p>
               </div>
-            ))}
+
+            </div>
+
+            <div className="flex gap-1">
+              {[1,2,3,4,5].map((star) => (
+                <Star
+                  key={star}
+                  className="w-5 h-5 text-slate-200"
+                />
+              ))}
+            </div>
+
+          </div>
+        ))}
           </div>
         </section>
 
@@ -123,7 +179,9 @@ export default function ReviewView({ onNavigate }: ReviewViewProps) {
           <label className="flex items-center gap-3 text-xl font-bold mb-6">
             <MessageSquare className="w-6 h-6 text-primary" /> Ulasan Lengkap
           </label>
-          <textarea 
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
             className="w-full bg-surface-container-low rounded-2xl border-none p-6 text-sm focus:ring-2 focus:ring-primary h-32 transition-all"
             placeholder="Bagikan pengalamanmu lebih detail di sini..."
           />
@@ -131,11 +189,36 @@ export default function ReviewView({ onNavigate }: ReviewViewProps) {
             <button className="flex items-center gap-3 text-slate-400 font-bold text-sm hover:text-primary transition-colors cursor-pointer">
               <Camera className="w-6 h-6" /> Tambah Foto (Opsional)
             </button>
-            <button 
-              onClick={() => setSubmitted(true)}
-              className="w-full md:w-auto bg-primary text-white px-12 py-4 rounded-3xl font-bold text-lg shadow-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-            >
-              Kirim Ulasan
+            <button
+                onClick={async () => {
+                  try {
+
+                    await fetch(
+                      "http://localhost:5000/api/reviews",
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                          id_pesanan: order[0].id_pesanan,
+                          id_pelanggan: 3,
+                          rating_restoran: rating,
+                          rating_pengiriman: deliveryRating,
+                          komentar: comment
+                        })
+                      }
+                    );
+
+                    setSubmitted(true);
+
+                  } catch (err) {
+                    console.log(err);
+                  }
+                }}
+                className="w-full md:w-auto bg-primary text-white px-12 py-4 rounded-3xl font-bold text-lg shadow-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+              >
+                Kirim Ulasan
             </button>
           </div>
         </section>

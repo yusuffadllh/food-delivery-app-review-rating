@@ -30,6 +30,10 @@ export default function HistoryView({ onNavigate }: HistoryViewProps) {
     loadOrders();
   }, []);
 
+  const favorites = [...new Set(
+  orders.map(order => order.nama_restoran)
+  )].slice(0, 3);
+
   return (
     <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12">
       {/* Header */}
@@ -123,17 +127,24 @@ export default function HistoryView({ onNavigate }: HistoryViewProps) {
           <div className="bg-white rounded-3xl p-8 shadow-soft border border-slate-50">
             <h4 className="text-lg font-bold mb-6">Pesan lagi dari favoritmu?</h4>
             <div className="space-y-6">
-              {[
-                { name: 'Ayam Geprek Bensu', count: '5x bulan lalu', image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=100' },
-                { name: 'Juice World - Plaza', count: '3x bulan lalu', image: 'https://images.unsplash.com/photo-1623065426202-18a0ad1d198a?auto=format&fit=crop&q=80&w=100' }
-              ].map((fav) => (
-                <div key={fav.name} className="flex items-center gap-4 group cursor-pointer">
-                  <img src={fav.image} alt={fav.name} className="w-12 h-12 rounded-2xl object-cover group-hover:scale-110 transition-transform" />
+              {favorites.map((fav) => (
+                <div
+                  key={fav}
+                  className="flex items-center gap-4 group cursor-pointer"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100" />
+
                   <div className="flex-1">
-                    <p className="font-bold text-sm group-hover:text-primary transition-colors">{fav.name}</p>
-                    <p className="text-slate-400 text-[10px] font-semibold">{fav.count}</p>
+                    <p className="font-bold text-sm">
+                      {fav}
+                    </p>
+
+                    <p className="text-slate-400 text-[10px] font-semibold">
+                      Pernah dipesan
+                    </p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-200 group-hover:text-primary transition-all" />
+
+                  <ChevronRight className="w-5 h-5 text-slate-200" />
                 </div>
               ))}
             </div>
